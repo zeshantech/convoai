@@ -9,9 +9,12 @@ export default function ChatLayout({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <ChatSidebar />
       <SidebarInset>
-        <ChatHeader />
-        <Separator />
-        <main>{children}</main>
+        <div className="h-screen flex-1 hide-scrollbar">
+          <header className="sticky top-0 z-20">
+            <ChatHeader />
+          </header>
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

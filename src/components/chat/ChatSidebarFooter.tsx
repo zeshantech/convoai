@@ -3,11 +3,13 @@
 import { Badge, ChevronsUpDown, Key, LogOut, Sparkles } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu,  DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { Fragment } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 export function ChatSidebarFooter() {
+  const { data } = useSession();
   const { isMobile } = useSidebar();
 
   const menuList = [
@@ -16,8 +18,12 @@ export function ChatSidebarFooter() {
     { title: "Api Keys", icon: <Key />, onClick: () => alert("api keys") },
     { title: "Support", icon: <Badge />, onClick: () => alert("support") },
 
-    { title: "Log out", icon: <LogOut />, onClick: () => alert("log out") },
+    { title: "Log out", icon: <LogOut />, onClick: () => signOut() },
   ];
+
+  if (!data) {
+    return <></>;
+  }
 
   return (
     <SidebarFooter>
@@ -27,12 +33,12 @@ export function ChatSidebarFooter() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={data.user.image!} alt={data.user.name!} />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-semibold">{data.user.name}</span>
+                  <span className="truncate text-xs">{data.user.email}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
@@ -57,8 +63,8 @@ export function ChatSidebarFooter() {
   );
 }
 
-const user = {
-  name: "shadcn",
-  email: "john.doe@example.com",
-  avatar: "/avatars/shadcn.jpg",
-};
+// const user = {
+//   name: "shadcn",
+//   email: "john.doe@example.com",
+//   avatar: "/avatars/shadcn.jpg",
+// };

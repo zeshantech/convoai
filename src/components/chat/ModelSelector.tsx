@@ -7,16 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SUPPORTED_MODELS, useModel } from "@/context/ModelContext";
+import { useSession } from "next-auth/react";
+import { Separator } from "../ui/separator";
 
 export function ModelSelector() {
-  const { selectedModel, setSelectedModel } = useModel();
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
+  const { selectedModelId, setSelectedModelId } = useModel();
+
   const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" role="combobox" aria-expanded={open} className="w-64 justify-between">
-          {SUPPORTED_MODELS.find((model) => model.id === selectedModel)?.label}
+          {SUPPORTED_MODELS.find((model) => model.id === selectedModelId)?.label}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -24,22 +29,35 @@ export function ModelSelector() {
         <Command>
           <CommandList className="hide-scrollbar">
             <CommandGroup>
-              {SUPPORTED_MODELS.map((model) => (
-                <CommandItem
-                  key={model.id}
-                  className="cursor-pointer"
-                  onSelect={() => {
-                    setSelectedModel(model.id);
-                    setOpen(false);
-                  }}
-                >
-                  <div className="flex flex-col">
-                    <span>{model.label}</span>
-                    <span className="text-xs text-muted-foreground">{model.description}</span>
-                  </div>
-                  <Check className={cn("ml-auto", selectedModel === model.id ? "opacity-100" : "opacity-0")} />
-                </CommandItem>
-              ))}
+              {SUPPORTED_MODELS.map((model) => {
+                const disabled = !isAuthenticated && !model.isPublic;
+                if (disabled) {
+                  return <></>;
+                }
+
+                return (
+                  <CommandItem
+                    key={model.id}
+                    className="cursor-pointer"
+                    onSelect={() => {
+                      setSelectedModelId(model.id);
+                      setOpen(false);
+                    }}
+                  >
+                    <div className="flex flex-col relative w-full">
+                      <span>{model.label}</span>
+                      <span className="text-xs text-muted-foreground">{model.description}</span>
+                    </div>
+                    <Check className={cn("ml-auto", selectedModelId === model.id ? "opacity-100" : "opacity-0")} />
+                  </CommandItem>
+                );
+              })}
+              {!isAuthenticated ? (
+                <>
+                  <Separator className="my-2" />
+                  <Button className="w-full">Login to use more Modals</Button>
+                </>
+              ) : null}
             </CommandGroup>
           </CommandList>
         </Command>
