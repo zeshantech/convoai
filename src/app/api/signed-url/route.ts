@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   try {
     const { fileType } = await req.json();
 
-    const extension = fileType.split('/')[1];
+    const extension = fileType.split("/")[1];
     const objectKey = `uploads/${Date.now()}.${extension}`;
 
     const command = new PutObjectCommand({
@@ -35,6 +35,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: presignedUrl, objectUrl });
   } catch (error) {
     console.error("Error generating presigned URL:", error);
-    return NextResponse.json({ error: "Failed to generate presigned URL" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to generate presigned URL" },
+      { status: 500 }
+    );
   }
 }

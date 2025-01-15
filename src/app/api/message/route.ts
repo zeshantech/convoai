@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { Message } from "@/models/Message";
 import { UnauthorizedException } from "@/lib/exceptions";
+import { serialize } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,7 +24,9 @@ export async function GET(request: NextRequest) {
       createdAt: -1,
     });
 
-    return NextResponse.json({ messages });
+    const reversedMessages = serialize(messages).reverse();
+
+    return NextResponse.json({ messages: reversedMessages });
   } catch (error) {
     return NextResponse.json({ message: error });
   }

@@ -3,22 +3,18 @@
  ============================== */
 
 import { NotFoundException } from "@/lib/exceptions";
-import { Chat } from "@/models/Chat";
+import { Chat, IChat } from "@/models/Chat";
 import { Document, DocumentKind } from "@/models/Document";
 import { IMessage, Message } from "@/models/Message";
+import { RootFilterQuery } from "mongoose";
 
-export async function saveChat({ id, userId, title }: { id: string; userId: string; title: string }) {
-  const chat = await Chat.findByIdAndUpdate(
-    id,
-    {
-      _id: id,
-      userId,
-      title,
-    },
-    { upsert: true, new: true }
-  );
+export async function createOrUpdateChat(id: string, params: Partial<IChat>) {
+  const chat = await Chat.findByIdAndUpdate(id, params, {
+    upsert: true,
+    new: true,
+  });
 
-  return chat;
+  return chat?.toJSON();
 }
 
 export async function deleteChatById(id: string) {
@@ -38,16 +34,47 @@ export async function getChatsByUserId(id: string) {
 
 export async function findChatById(id: string) {
   const selectedChat = await Chat.findById(id).exec();
-  return selectedChat;
+
+  return selectedChat?.toJSON();
+}
+
+export async function updateChatById(id: string, updates: Partial<IChat>) {
+  const updatedChat = await Chat.findByIdAndUpdate(id, updates, { new: true });
+  if (!updatedChat) {
+    throw new NotFoundException("Chat not found");
+  }
+
+  return updatedChat;
+}
+
+export async function updateChatByFilters(
+  params: RootFilterQuery<IChat>,
+  updates: Partial<IChat>
+) {
+  const updatedChat = await Chat.findOneAndUpdate(params, updates, {
+    new: true,
+  });
+  if (!updatedChat) {
+    throw new NotFoundException("Chat not found");
+  }
+
+  return updatedChat;
 }
 
 /** ==============================
  *           MESSAGES
  ============================== */
 
-export async function saveMessages(messages: Pick<IMessage, "content" | "role" | "chat">[]) {
+export async function saveMessages(messages: Partial<IMessage>[]) {
   const inserted = await Message.insertMany(messages);
+
   return inserted;
+}
+
+export async function saveMessage(message: Partial<IMessage>) {
+  const inserted = await Message.create(message);
+
+  return inserted.toJSON();
 }
 
 export async function getMessagesByChatId(id: string) {
@@ -62,7 +89,19 @@ export async function getMessagesByChatId(id: string) {
  *          DOCUMENTS
  ============================== */
 
-export async function saveDocument({ id, title, kind, content, userId }: { id: string; title: string; kind: DocumentKind; content: string; userId: string }) {
+export async function saveDocument({
+  id,
+  title,
+  kind,
+  content,
+  userId,
+}: {
+  id: string;
+  title: string;
+  kind: DocumentKind;
+  content: string;
+  userId: string;
+}) {
   // Upsert, if you want to allow updates
   const doc = await Document.findByIdAndUpdate(
     id,

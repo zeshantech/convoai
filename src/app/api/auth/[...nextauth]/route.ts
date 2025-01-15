@@ -20,7 +20,11 @@ export const authOptions: NextAuthOptions = {
     Credentials({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "jsmith@example.com" },
+        email: {
+          label: "Email",
+          type: "email",
+          placeholder: "jsmith@example.com",
+        },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
@@ -28,7 +32,10 @@ export const authOptions: NextAuthOptions = {
         const user = await User.findOne({ email: credentials?.email });
 
         if (!user || !user.password) return null;
-        const isValid = await bcrypt.compare(credentials?.password ?? "", user.password);
+        const isValid = await bcrypt.compare(
+          credentials?.password ?? "",
+          user.password
+        );
         if (!isValid) return null;
 
         return {
@@ -48,6 +55,35 @@ export const authOptions: NextAuthOptions = {
     error: "/auth/error",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (!account || !profile) return false;
+
+      if (account.provider === "google" || account.provider === "github") {
+        await dbConnect();
+
+        const userEmail = profile.email;
+
+        if (!userEmail) {
+          return false;
+        }
+
+        let existingUser = await User.findOne({ email: userEmail });
+
+        if (!existingUser) {
+          existingUser = await User.create({
+            name: profile.name || user.name || "No Name",
+            email: userEmail,
+            image: profile.image,
+          });
+
+          await existingUser.save();
+        }
+
+        user.id = existingUser.id;
+      }
+
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

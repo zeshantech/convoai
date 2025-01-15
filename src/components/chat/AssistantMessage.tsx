@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import {
   Copy,
@@ -13,15 +12,23 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { toast } from "sonner";
 import useSpeechSynthesis from "@/hooks/useSpeechSynthesis";
-import MarkdownRenderer from "../MarkdownRenderer";
+import MarkdownRenderer from "../MarkdownRenderer/MarkdownRenderer";
+import { useUpdateMessage } from "@/hooks/useUpdateMessage";
+import { capitalizeText } from "@/lib/utils";
 
 interface AssistantMessageProps {
-  content: string; // This should be raw HTML
-  timestamp?: string;
+  content: string;
+  vote?: "like" | "dislike";
+  id: string;
 }
 
-const AssistantMessage: React.FC<AssistantMessageProps> = ({ content }) => {
+const AssistantMessage: React.FC<AssistantMessageProps> = ({
+  content,
+  id,
+  vote,
+}) => {
   const { isPlaying, speak, stop } = useSpeechSynthesis();
+  const { trigger: updateMessage } = useUpdateMessage();
 
   const handleVolume = () => {
     const tempElement = document.createElement("div");
@@ -35,9 +42,6 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ content }) => {
     }
   };
 
-  // Initialize SpeechSynthesisUtterance
-
-  // Additional Action Handlers
   const handleCopy = () => {
     const tempElement = document.createElement("div");
     tempElement.innerHTML = content;
@@ -48,23 +52,23 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ content }) => {
       .catch(() => toast.error("Failed to copy message."));
   };
 
-  const handleThumbsUp = () => {
-    // Implement your thumbs up logic here
+  const handleThumbsUp = async () => {
+    const userFeedback = window.prompt("Add some feedback (Optional)");
+    const suggestion = userFeedback !== null ? userFeedback.trim() : "";
+    await updateMessage({ id, suggestion, vote: "like" });
     toast.success("You liked the message!");
   };
 
-  const handleThumbsDown = () => {
-    // Implement your thumbs down logic here
+  const handleThumbsDown = async () => {
+    const userFeedback = window.prompt("Add some feedback (Optional)");
+    const suggestion = userFeedback !== null ? userFeedback.trim() : "";
+    await updateMessage({ id, suggestion, vote: "dislike" });
     toast.warning("You disliked the message.");
   };
 
   const handleRetry = () => {
-    // Implement retry logic here (e.g., re-fetch the message or regenerate it)
     toast.info("Retrying...");
-    // Placeholder: Add your retry logic
   };
-
-  console.log(content, "----------");
 
   return (
     <div className="space-y-4 group">
@@ -76,7 +80,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ content }) => {
           alt="Assistant"
           className="rounded-full"
         />
-        <div className="text-gray-800 prose max-w-none bg-gray-100 p-3 rounded-xl">
+        <div className="w-full overflow-x-auto p-3 rounded-xl">
           <MarkdownRenderer content={content} />
         </div>
       </div>
@@ -99,24 +103,30 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ content }) => {
         >
           <Copy />
         </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={handleThumbsUp}
-          aria-label="Thumbs Up"
-          className="w-6 h-6"
-        >
-          <ThumbsUp />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={handleThumbsDown}
-          aria-label="Thumbs Down"
-          className="w-6 h-6"
-        >
-          <ThumbsDown />
-        </Button>
+        {!vote ? (
+          <>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleThumbsUp}
+              aria-label="Thumbs Up"
+              className="w-6 h-6"
+            >
+              <ThumbsUp />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleThumbsDown}
+              aria-label="Thumbs Down"
+              className="w-6 h-6"
+            >
+              <ThumbsDown />
+            </Button>
+          </>
+        ) : (
+          <div className="text-xs px-2 mt-0.5">{capitalizeText(vote)}</div>
+        )}
         <Button
           size="icon"
           variant="ghost"

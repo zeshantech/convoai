@@ -60,7 +60,7 @@ export default function MainInput({
 
   return (
     <form
-      className="relative flex items-center space-x-2"
+      className="relative bg-muted px-4 py-2 flex flex-col space-y-2"
       onSubmit={handleOnSubmit}
     >
       {selectedFiles.length > 0 && (
@@ -76,6 +76,13 @@ export default function MainInput({
         </div>
       )}
 
+      <Textarea
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Ask ConvoAI"
+        className="flex-1 pr-12 resize-none"
+      />
+
       <input
         type="file"
         ref={fileInputRef}
@@ -84,51 +91,40 @@ export default function MainInput({
         multiple
       />
 
-      <Button
-        loading={isFileUploading}
-        variant="ghost"
-        size="icon"
-        onClick={handleFileClick}
-        aria-label="Attach File"
-      >
-        <Link2 />
-      </Button>
-
-      <Textarea
-        value={input}
-        rows={4}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Type your message..."
-        className="flex-1 resize-none bg-background px-4 py-2"
-      />
-
-      {isLoading ? (
+      <div className="flex justify-between">
         <Button
+          loading={isFileUploading}
+          variant="outline"
           size="icon"
-          onClick={stop}
-          variant="destructive"
-          aria-label="Stop"
+          onClick={handleFileClick}
+          aria-label="Attach File"
         >
-          <Pause />
+          <Link2 />
         </Button>
-      ) : (
-        <Button
-          type="submit"
-          size="icon"
-          variant="secondary"
-          aria-label="Send"
-          disabled={!input.trim()}
-          className={`${!input.trim() ? "cursor-not-allowed" : ""}`}
-        >
-          <SendHorizontal />
-        </Button>
-      )}
+
+        {isLoading ? (
+          <Button size="icon" onClick={stop} aria-label="Stop">
+            <Pause />
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            size="icon"
+            aria-label="Send"
+            disabled={!input.trim()}
+            className={`${!input.trim() ? "cursor-not-allowed" : ""}`}
+          >
+            <SendHorizontal />
+          </Button>
+        )}
+      </div>
 
       <Button
-        variant="ghost"
         size="icon"
+        variant="outline"
         onClick={handleExpand}
         aria-label="Expand"
+        className="absolute top-0 right-4"
       >
         <Expand />
       </Button>

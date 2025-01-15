@@ -1,6 +1,12 @@
 import { Code, MessageCircle, Image, Globe } from "lucide-react";
 
-import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { useGetChats } from "@/hooks/useGetChats";
 
 export function GPTsList() {
   return (

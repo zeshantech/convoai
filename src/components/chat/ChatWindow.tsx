@@ -37,8 +37,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     <div className="space-y-6 p-4">
       {messages.map((msg) =>
         msg.role === "assistant" ? (
-          <div className="w-full" key={msg.id}>
-            <AssistantMessage content={msg.content} />
+          <div className="w-full md:w-5/6" key={msg.id}>
+            <AssistantMessage
+              id={msg.id}
+              vote={msg.vote}
+              content={msg.content}
+            />
           </div>
         ) : (
           <div className="w-full" key={msg.id}>

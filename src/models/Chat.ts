@@ -1,11 +1,12 @@
 import { Document, model, Model, models, Schema } from "mongoose";
-import { IUser } from "./User";
+import toJSON from "@/plugins/toJSON";
 
 export type Visibility = "public" | "private";
 
 export interface IChat extends Document {
+  id: string; // Added to recognize the transformed id field
   title: string;
-  user: string | IUser;
+  user: Schema.Types.ObjectId | string;
   visibility: Visibility;
   createdAt: Date;
   updatedAt: Date;
@@ -38,4 +39,7 @@ const ChatSchema: Schema<IChat> = new Schema(
   { timestamps: true }
 );
 
-export const Chat: Model<IChat> = models.Chat || model<IChat>("Chat", ChatSchema);
+ChatSchema.plugin(toJSON);
+
+export const Chat: Model<IChat> =
+  models.Chat || model<IChat>("Chat", ChatSchema);

@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 
 export function useGetMessages(chatId: string) {
-  return useSWR("/messages", async (url: string) => {
+  return useSWR("/message", async (url: string) => {
     try {
       const response = await api.get(`${url}?chatId=${chatId}`);
 
