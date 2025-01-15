@@ -4,7 +4,6 @@ import {
   CoreUserMessage,
   generateText,
   type CoreAssistantMessage,
-  type CoreMessage,
   type CoreToolMessage,
   type Message,
   type ToolInvocation,
@@ -202,7 +201,7 @@ export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
   );
 }
 
-export function getMostRecentUserMessage(messages: Array<CoreMessage>) {
+export function getMostRecentUserMessage(messages: Array<Message>) {
   const userMessages = messages.filter((message) => message.role === "user");
   return userMessages.at(-1);
 }
@@ -227,7 +226,7 @@ export function getMessageIdFromAnnotations(message: Message) {
   return annotation.messageIdFromServer;
 }
 
-export async function generateTitleFromUserMessage(message: CoreUserMessage) {
+export async function generateTitleFromUserMessage(message: Message) {
   const { text: title } = await generateText({
     model: getModel("gpt-4o-mini"),
     system: `\n

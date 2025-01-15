@@ -69,7 +69,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
       <Highlight key={2} code={processedCode} language={language}>
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
           <pre
-            className={`${className} p-4 max-h-80 overflow-auto hide-scrollbar`}
+            className={`${className} p-4 overflow-auto hide-scrollbar`}
             style={style}
           >
             {tokens.map((line, i) => (

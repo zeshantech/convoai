@@ -8,11 +8,13 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 interface ChatWindowProps {
   messages: Array<Message>;
+  onRetry: () => void;
   onUpdateMessage: (id: string, newContent: string) => void;
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
   messages,
+  onRetry,
   onUpdateMessage,
 }) => {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -37,23 +39,22 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     <div className="space-y-6 p-4">
       {messages.map((msg) =>
         msg.role === "assistant" ? (
-          <div className="w-full md:w-5/6" key={msg.id}>
-            <AssistantMessage
-              id={msg.id}
-              vote={msg.vote}
-              content={msg.content}
-            />
-          </div>
+          <AssistantMessage
+            key={msg.id}
+            id={msg.id}
+            vote={msg.vote}
+            content={msg.content}
+            onRetry={onRetry}
+          />
         ) : (
-          <div className="w-full" key={msg.id}>
-            <UserMessage
-              content={msg.content}
-              isEditing={msg.id === editingMessageId}
-              onCancel={() => setEditingMessageId(null)}
-              onSave={(newContent) => handleSave(msg.id, newContent)}
-              onEdit={() => setEditingMessageId(msg.id)}
-            />
-          </div>
+          <UserMessage
+            key={msg.id}
+            content={msg.content}
+            isEditing={msg.id === editingMessageId}
+            onCancel={() => setEditingMessageId(null)}
+            onSave={(newContent) => handleSave(msg.id, newContent)}
+            onEdit={() => setEditingMessageId(msg.id)}
+          />
         )
       )}
     </div>

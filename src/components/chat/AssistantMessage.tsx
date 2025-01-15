@@ -18,6 +18,7 @@ import { capitalizeText } from "@/lib/utils";
 
 interface AssistantMessageProps {
   content: string;
+  onRetry: () => void;
   vote?: "like" | "dislike";
   id: string;
 }
@@ -26,6 +27,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
   content,
   id,
   vote,
+  onRetry,
 }) => {
   const { isPlaying, speak, stop } = useSpeechSynthesis();
   const { trigger: updateMessage } = useUpdateMessage();
@@ -64,10 +66,6 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
     const suggestion = userFeedback !== null ? userFeedback.trim() : "";
     await updateMessage({ id, suggestion, vote: "dislike" });
     toast.warning("You disliked the message.");
-  };
-
-  const handleRetry = () => {
-    toast.info("Retrying...");
   };
 
   return (
@@ -130,7 +128,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
         <Button
           size="icon"
           variant="ghost"
-          onClick={handleRetry}
+          onClick={onRetry}
           aria-label="Retry Message"
           className="w-6 h-6"
         >

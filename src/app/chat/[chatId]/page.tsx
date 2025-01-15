@@ -20,15 +20,7 @@ export default function Page() {
 
   const { data: chats, isLoading, error } = useGetMessages(chatId);
 
-  const {
-    messages,
-    input,
-    setInput,
-    handleSubmit,
-    isLoading: isChatLoading,
-    stop,
-    ...chatProps
-  } = useChat({
+  const { messages, ...chatProps } = useChat({
     id: chatId,
     body: { modelId: selectedModelId, chatId },
     initialMessages: chats || [],
@@ -51,10 +43,6 @@ export default function Page() {
       router.replace(`/chat/${generateObjectId()}`);
     }
   }, [chatId, router]);
-
-  const handleOnSubmit = async () => {
-    handleSubmit();
-  };
 
   const handleUpdateMessage = (id: string, newContent: string) => {
     mutate(
@@ -91,18 +79,14 @@ export default function Page() {
         className="flex-1 overflow-y-auto py-4 px-4 md:px-32"
         ref={chatWindowRef}
       >
-        <ChatWindow messages={messages} onUpdateMessage={handleUpdateMessage} />
+        <ChatWindow
+          messages={messages}
+          onRetry={chatProps.reload}
+          onUpdateMessage={handleUpdateMessage}
+        />
       </main>
       <footer className="sticky bottom-0">
-        <MainInput
-          messages={messages}
-          handleSubmit={handleOnSubmit}
-          input={input}
-          setInput={setInput}
-          isLoading={isChatLoading}
-          stop={stop}
-          {...chatProps}
-        />
+        <MainInput messages={messages} {...chatProps} />
       </footer>
     </div>
   );

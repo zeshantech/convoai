@@ -42,27 +42,30 @@ export async function POST(request: NextRequest) {
       return new BadRequestException("Model Id is Required");
     }
 
-    const coreMessages = convertToCoreMessages(messages);
-    const userMessage = getMostRecentUserMessage(coreMessages);
+    const userMessage = getMostRecentUserMessage(messages);
     if (!userMessage) {
       return new BadRequestException("Message not found");
     }
 
-    let chat = await findChatById(chatId);
-    if (!chat) {
-      chat = await createOrUpdateChat(chatId, {
-        _id: chatId,
-        user: session.user.id,
-        title: await generateTitleFromUserMessage(userMessage),
-      });
-    }
+    enqueueTask(async () => {
+      let chat = await findChatById(chatId);
+      if (!chat) {
+        await createOrUpdateChat(chatId, {
+          _id: chatId,
+          user: session.user.id,
+          title: await generateTitleFromUserMessage(userMessage),
+        });
+      }
+    });
 
     const userMessageId = generateObjectId();
 
-    await saveMessage({
-      ...userMessage,
-      _id: userMessageId,
-      chat: chatId,
+    enqueueTask(async () => {
+      await saveMessage({
+        ...userMessage,
+        _id: userMessageId,
+        chat: chatId,
+      });
     });
 
     const languageModel = getModel(modelId);
@@ -76,7 +79,7 @@ export async function POST(request: NextRequest) {
         const result = streamText({
           model: languageModel,
           system: systemPrompt,
-          messages: coreMessages,
+          messages,
           onFinish: async ({ response }) => {
             enqueueTask(async () => {
               return onFinishStreamHelper(response, chatId);
