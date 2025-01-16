@@ -13,7 +13,7 @@ import { Separator } from "../ui/separator";
 export function ModelSelector() {
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
-  const { selectedModelId, setSelectedModelId } = useModel();
+  const { selectedModel, setSelectedModelId } = useModel();
 
   const [open, setOpen] = React.useState(false);
 
@@ -21,7 +21,7 @@ export function ModelSelector() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" role="combobox" aria-expanded={open} className="w-64 justify-between">
-          {SUPPORTED_MODELS.find((model) => model.id === selectedModelId)?.label}
+          {SUPPORTED_MODELS.find((model) => model.id === selectedModel.id)?.label}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -48,7 +48,7 @@ export function ModelSelector() {
                       <span>{model.label}</span>
                       <span className="text-xs text-muted-foreground">{model.description}</span>
                     </div>
-                    <Check className={cn("ml-auto", selectedModelId === model.id ? "opacity-100" : "opacity-0")} />
+                    <Check className={cn("ml-auto", selectedModel.id === model.id ? "opacity-100" : "opacity-0")} />
                   </CommandItem>
                 );
               })}

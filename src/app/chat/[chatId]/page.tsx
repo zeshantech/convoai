@@ -12,7 +12,7 @@ import { useGetMessages } from "@/hooks/useGetMessages";
 import ChatWindow from "@/components/chat/ChatWindow";
 
 export default function Page() {
-  const { selectedModelId } = useModel();
+  const { selectedModel } = useModel();
   const router = useRouter();
   const chatWindowRef = useRef<HTMLDivElement>(null);
   const { mutate } = useSWRConfig();
@@ -22,7 +22,7 @@ export default function Page() {
 
   const { messages, ...chatProps } = useChat({
     id: chatId,
-    body: { modelId: selectedModelId, chatId },
+    body: { modelId: selectedModel.id, chatId },
     initialMessages: chats || [],
     experimental_throttle: 100,
     onFinish: () => {
@@ -48,9 +48,7 @@ export default function Page() {
     mutate(
       "/api/history",
       (currentData: any) => {
-        return currentData.map((msg: Message) =>
-          msg.id === id ? { ...msg, content: newContent } : msg
-        );
+        return currentData.map((msg: Message) => (msg.id === id ? { ...msg, content: newContent } : msg));
       },
       false
     );
@@ -75,15 +73,8 @@ export default function Page() {
 
   return (
     <div className="flex flex-col h-full">
-      <main
-        className="flex-1 overflow-y-auto py-4 px-4 md:px-32"
-        ref={chatWindowRef}
-      >
-        <ChatWindow
-          messages={messages}
-          onRetry={chatProps.reload}
-          onUpdateMessage={handleUpdateMessage}
-        />
+      <main className="flex-1 overflow-y-auto py-4 px-4 md:px-32" ref={chatWindowRef}>
+        <ChatWindow messages={messages} onRetry={chatProps.reload} onUpdateMessage={handleUpdateMessage} />
       </main>
       <footer className="sticky bottom-0">
         <MainInput messages={messages} {...chatProps} />
