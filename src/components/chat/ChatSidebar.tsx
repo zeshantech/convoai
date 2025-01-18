@@ -2,23 +2,16 @@
 
 import * as React from "react";
 import { ChatList } from "./ChatList";
-import { ChatSidebarFooter } from "./ChatSidebarFooter";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import ChatSidebarHeader from "./SidebarHeader";
-import { GPTsList } from "./GPTsList";
 
-export function ChatSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+export function ChatSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="offcanvas" {...props} className="left-12">
       <ChatSidebarHeader />
-      <SidebarContent>
-        <GPTsList />
+      <SidebarContent className="hide-scrollbar">
         <ChatList />
       </SidebarContent>
-
-      <ChatSidebarFooter />
     </Sidebar>
   );
 }

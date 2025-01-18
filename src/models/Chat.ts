@@ -1,10 +1,11 @@
-import { Document, model, Model, models, Schema } from "mongoose";
+import { Document, Model, model, models, Schema, PaginateModel } from "mongoose";
 import toJSON from "@/plugins/toJSON";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 export type Visibility = "public" | "private";
 
 export interface IChat extends Document {
-  id: string; // Added to recognize the transformed id field
+  id: string;
   title: string;
   user: Schema.Types.ObjectId | string;
   visibility: Visibility;
@@ -12,34 +13,16 @@ export interface IChat extends Document {
   updatedAt: Date;
 }
 
-const ChatSchema: Schema<IChat> = new Schema(
+const ChatSchema = new Schema<IChat>(
   {
-    createdAt: {
-      type: Date,
-      required: true,
-      default: Date.now,
-    },
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    visibility: {
-      type: String,
-      enum: ["public", "private"],
-      required: true,
-      default: "private",
-    },
+    title: { type: String, required: true, trim: true },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    visibility: { type: String, enum: ["public", "private"], required: true, default: "private" },
   },
   { timestamps: true }
 );
 
 ChatSchema.plugin(toJSON);
+ChatSchema.plugin(mongoosePaginate);
 
-export const Chat: Model<IChat> =
-  models.Chat || model<IChat>("Chat", ChatSchema);
+export const Chat: PaginateModel<IChat> = (models.Chat as PaginateModel<IChat>) || model<IChat, PaginateModel<IChat>>("Chat", ChatSchema);

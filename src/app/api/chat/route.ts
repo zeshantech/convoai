@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { convertToCoreMessages, createDataStreamResponse, streamText, LanguageModelResponseMetadata, CoreToolMessage, CoreAssistantMessage } from "ai";
+import { createDataStreamResponse, streamText, LanguageModelResponseMetadata, CoreToolMessage, CoreAssistantMessage } from "ai";
 import { systemPrompt } from "@/lib/ai/prompts";
 
 import { enqueueTask } from "./queue";
@@ -26,33 +26,31 @@ export async function POST(request: NextRequest) {
       return new BadRequestException("Model Id is Required");
     }
 
-    console.log(messages, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-
     const userMessage = getMostRecentUserMessage(messages);
     if (!userMessage) {
       return new BadRequestException("Message not found");
     }
 
-    // enqueueTask(async () => {
-    let chat = await findChatById(chatId);
-    if (!chat) {
-      await createOrUpdateChat(chatId, {
-        _id: chatId,
-        user: session.user.id,
-        title: await generateTitleFromUserMessage(userMessage),
-      });
-    }
-    // });
+    enqueueTask(async () => {
+      let chat = await findChatById(chatId);
+      if (!chat) {
+        await createOrUpdateChat(chatId, {
+          _id: chatId,
+          user: session.user.id,
+          title: await generateTitleFromUserMessage(userMessage),
+        });
+      }
+    });
 
     const userMessageId = generateObjectId();
 
-    // enqueueTask(async () => {
-    await saveMessage({
-      ...userMessage,
-      _id: userMessageId,
-      chat: chatId,
+    enqueueTask(async () => {
+      await saveMessage({
+        ...userMessage,
+        _id: userMessageId,
+        chat: chatId,
+      });
     });
-    // });
 
     const languageModel = getModel(modelId);
 
@@ -67,9 +65,9 @@ export async function POST(request: NextRequest) {
           system: systemPrompt,
           messages,
           onFinish: async ({ response }) => {
-            // enqueueTask(async () => {
-            await onFinishStreamHelper(response, chatId);
-            // });
+            enqueueTask(async () => {
+              await onFinishStreamHelper(response, chatId);
+            });
           },
         });
 
@@ -77,8 +75,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.log(error, "{{{{{{{{{{{{{{{{{{{{{{{{{");
-
     return new NextResponse(error.message ?? "Internal Server Error", {
       ...error,
     });
@@ -93,16 +89,12 @@ export async function GET() {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const chats = await Chat.find({ user: session.user.id });
+    const paginateChats = await Chat.paginate({ user: session.user.id }, { limit: 20, sort: { createdAt: -1 } });
+    paginateChats.docs = serialize(paginateChats.docs);
 
-    const serializedChats = serialize(chats);
-
-    return NextResponse.json({ chats: serializedChats });
-  } catch (error) {
-    return NextResponse.json({
-      message: error ?? "Interval server error",
-      status: 500,
-    });
+    return NextResponse.json(paginateChats);
+  } catch (error: any) {
+    return NextResponse.json({ message: error?.message ?? "Interval server error" }, error);
   }
 }
 

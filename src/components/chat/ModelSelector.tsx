@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { SUPPORTED_MODELS, useModel } from "@/context/ModelContext";
 import { useSession } from "next-auth/react";
 import { Separator } from "../ui/separator";
+import Image from "next/image";
 
 export function ModelSelector() {
   const { status } = useSession();
@@ -25,7 +26,7 @@ export function ModelSelector() {
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-0">
+      <PopoverContent className="w-72 p-0">
         <Command>
           <CommandList className="hide-scrollbar">
             <CommandGroup>
@@ -38,12 +39,13 @@ export function ModelSelector() {
                 return (
                   <CommandItem
                     key={model.id}
-                    className="cursor-pointer"
+                    className="cursor-pointer space-x-2"
                     onSelect={() => {
                       setSelectedModelId(model.id);
                       setOpen(false);
                     }}
                   >
+                    <Image src={model.image} width={24} height={24} alt={model.label} />
                     <div className="flex flex-col relative w-full">
                       <span>{model.label}</span>
                       <span className="text-xs text-muted-foreground">{model.description}</span>

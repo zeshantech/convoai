@@ -28,15 +28,13 @@ export default function MainInput({ handleSubmit, input, setInput, isLoading, st
       alert("Some files were not supported and have been excluded.");
     }
 
-    const filesWithPreview = await Promise.all(
-      filteredFiles.map(async (file) =>
-        Object.assign(file, {
-          preview: await trigger(file),
-        })
-      )
+    const filesWithPreview = filteredFiles.map((file) =>
+      Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      })
     );
-
     setSelectedFiles((prev) => [...prev, ...filesWithPreview]);
+    files.forEach((file) => trigger(file));
   };
 
   const handleOnSubmit = async (e?: FormEvent<HTMLFormElement>) => {
@@ -61,7 +59,7 @@ export default function MainInput({ handleSubmit, input, setInput, isLoading, st
   };
 
   const handleExpandImage = (image: FileWithPreview) => {
-    window.open(image.url, "_blank");
+    window.open(image.preview, "_blank");
   };
 
   // Clear selected files if they are not supported by the new model
@@ -81,7 +79,7 @@ export default function MainInput({ handleSubmit, input, setInput, isLoading, st
       {selectedFiles.length > 0 && (
         <div className="absolute -translate-y-full -top-2 left-4 flex flex-wrap gap-2">
           {selectedFiles.map((file) => (
-            <ImagePreview key={file.url} file={file} onExpand={() => handleExpandImage(file)} onRemove={() => handleRemoveImage(file)} />
+            <ImagePreview key={file.preview} file={file} onExpand={() => handleExpandImage(file)} onRemove={() => handleRemoveImage(file)} />
           ))}
         </div>
       )}

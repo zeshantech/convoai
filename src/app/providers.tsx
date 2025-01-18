@@ -1,5 +1,7 @@
 "use client";
 
+import AppSidebar from "@/components/layout/AppSidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ModelProvider } from "@/context/ModelContext";
 import { Session } from "next-auth";
@@ -8,13 +10,7 @@ import React, { useState, useEffect } from "react";
 import { HotkeysProvider } from "react-hotkeys-hook";
 import { Toaster } from "sonner";
 
-export default function Providers({
-  session,
-  children,
-}: {
-  session: Session | null;
-  children: React.ReactNode;
-}) {
+export default function Providers({ session, children }: { session: Session | null; children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -31,8 +27,13 @@ export default function Providers({
       <ModelProvider>
         <TooltipProvider>
           <HotkeysProvider>
-            <Toaster position="top-center" />
-            {children}
+            <SidebarProvider open={false}>
+              <AppSidebar />
+              <SidebarInset>
+                <Toaster position="top-center" />
+                {children}
+              </SidebarInset>
+            </SidebarProvider>
           </HotkeysProvider>
         </TooltipProvider>
       </ModelProvider>

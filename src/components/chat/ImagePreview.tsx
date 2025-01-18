@@ -29,7 +29,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ file, onRemove, onExpand })
   return (
     <div className="relative h-14 w-14">
       {isImage ? (
-        <Image onClick={onExpand} src={file.url} alt="Uploaded File Preview" width={1} height={1} className="object-cover rounded w-full h-full cursor-pointer" />
+        <Image onClick={onExpand} src={file.preview} alt="Uploaded File Preview" width={1} height={1} className="object-cover rounded w-full h-full cursor-pointer" />
       ) : (
         <div onClick={onExpand} className="flex items-center justify-center bg-gray-100 rounded w-full h-full cursor-pointer">
           <Image src={getFileTypeIcon(file.type) || "/icons/file.svg"} alt="File Icon" width={48} height={48} className="object-contain" />
