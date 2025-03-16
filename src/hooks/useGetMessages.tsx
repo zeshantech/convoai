@@ -8,10 +8,8 @@ export function useGetMessages(chatId: string) {
       const response = await api.get(`${url}?chatId=${chatId}`);
 
       return response.data?.messages ?? [];
-    } catch (error: any) {
-      console.log(error);
-
-      toast.error(error?.message ?? "Unable to get Messages");
+    } catch (error: unknown) {
+      toast.error((error as IError).message);
     }
   });
 }

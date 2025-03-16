@@ -20,8 +20,6 @@ export function useUploadFiles() {
           },
         });
 
-        console.log("File uploaded successfully:", objectUrl);
-
         return objectUrl;
       } catch (error: any) {
         console.error("Upload Error:", error);

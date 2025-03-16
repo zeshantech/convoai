@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -6,10 +6,8 @@ const api = axios.create({
 
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    console.log(error);
-
-    return Promise.reject(error);
+  async (error: AxiosError<IError>) => {
+    return Promise.reject(error.response?.data);
   }
 );
 

@@ -1,20 +1,13 @@
-// queue.ts
 type Task = () => Promise<void>;
 
 const taskQueue: Task[] = [];
 let isProcessing = false;
 
-/**
- * Add task to queue
- */
 export function enqueueTask(task: Task) {
   taskQueue.push(task);
   processQueue();
 }
 
-/**
- * Process tasks one by one
- */
 async function processQueue() {
   if (isProcessing) return;
 
@@ -26,7 +19,7 @@ async function processQueue() {
     try {
       await task();
     } catch (error) {
-      console.error('Queue task failed:', error);
+      console.error("Queue task failed:", error);
     }
   }
   isProcessing = false;

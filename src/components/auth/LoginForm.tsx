@@ -18,7 +18,7 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await signIn("credentials", {
-      callbackUrl: "/chat/n",
+      callbackUrl: "/chat",
       email,
       password,
     });

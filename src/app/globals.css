@@ -92,3 +92,7 @@ body {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
+.simple-keyboard {
+  max-width: 850px;
+}

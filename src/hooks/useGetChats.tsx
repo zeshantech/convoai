@@ -10,9 +10,8 @@ export function useGetChats(input: PaginationInput) {
       const response = await api.get(url, { params: input });
 
       return response.data;
-    } catch (error: any) {
-      console.log(error);
-      toast.error(error?.message ?? "Unable to get Chats");
+    } catch (error: unknown) {
+      toast.error((error as IError).message);
     }
   });
 }

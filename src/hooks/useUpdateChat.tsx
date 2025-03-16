@@ -9,17 +9,13 @@ interface IUpdateChat {
 }
 
 export function useUpdateChat() {
-  return useSWRMutation(
-    "/chat",
-    async (url: string, { arg }: { arg: IUpdateChat }) => {
-      try {
-        const response = await api.put(`${url}/${arg.id}`, arg);
+  return useSWRMutation("/chat", async (url: string, { arg }: { arg: IUpdateChat }) => {
+    try {
+      const response = await api.put(`${url}/${arg.id}`, arg);
 
-        return response.data;
-      } catch (error: any) {
-        console.log(error);
-        toast.error(error?.message ?? "Unable to get Chats");
-      }
+      return response.data;
+    } catch (error: unknown) {
+      toast.error((error as IError).message);
     }
-  );
+  });
 }

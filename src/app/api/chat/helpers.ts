@@ -1,3 +1,73 @@
+// customModel.ts
+import { openai } from "@ai-sdk/openai";
+
+import { anthropic } from "@ai-sdk/anthropic";
+import { mistral } from "@ai-sdk/mistral";
+import { google } from "@ai-sdk/google";
+import { LanguageModel, experimental_wrapLanguageModel as wrapLanguageModel, Experimental_LanguageModelV1Middleware } from "ai";
+import { ModelProviderEnum } from "@/context/ModelContext";
+
+export const getModel = (id: string): LanguageModel => {
+  let apiClient;
+  const provider = getProvider(id);
+
+  switch (provider) {
+    case ModelProviderEnum.OpenAI:
+      apiClient = openai(id);
+      break;
+    case ModelProviderEnum.Anthropic:
+      apiClient = anthropic(id);
+      break;
+    case ModelProviderEnum.Mistral:
+      apiClient = mistral(id);
+      break;
+    case ModelProviderEnum.Gemini:
+      apiClient = google(id);
+      break;
+    default:
+      throw new Error(`Unsupported provider: ${provider}`);
+  }
+
+  return wrapLanguageModel({
+    model: apiClient,
+    middleware: customMiddleware,
+  });
+};
+
+function getProvider(modelId: string): ModelProviderEnum {
+  switch (modelId) {
+    case "gpt-4o":
+    case "gpt-4o-mini":
+    case "gpt-4-turbo":
+    case "gpt-4":
+    case "o1-mini":
+    case "o1-preview":
+    case "o1":
+      return ModelProviderEnum.OpenAI;
+
+    case "claude-3-5-sonnet-20241022":
+    case "claude-3-5-sonnet-20240620":
+    case "claude-3-5-haiku-20241022":
+      return ModelProviderEnum.Anthropic;
+
+    case "pixtral-large-latest":
+    case "pixtral-12b-2409":
+    case "mistral-large-latest":
+    case "mistral-small-latest":
+      return ModelProviderEnum.Mistral;
+
+    case "gemini-2.0-flash-exp":
+    case "gemini-1.5-flash":
+    case "gemini-1.5-pro":
+      return ModelProviderEnum.Gemini;
+
+    default:
+      throw new Error(`Unknown provider for model: ${modelId}`);
+  }
+}
+
+export const customMiddleware: Experimental_LanguageModelV1Middleware = {};
+
 export const blocksPrompt = `
 Blocks is a special user interface mode that helps users with writing, editing, and other content creation tasks. When block is open, it is on the right side of the screen, while the conversation is on the left side. When creating or updating documents, changes are reflected in real-time on the blocks and visible to the user.
 
@@ -29,8 +99,7 @@ This is a guide for using blocks tools: \`createDocument\` and \`updateDocument\
 Do not update document right after creating it. Wait for user feedback or request to update it.
 `;
 
-export const regularPrompt =
-  'You are a friendly assistant! Keep your responses concise and helpful.';
+export const regularPrompt = "You are a friendly assistant! Keep your responses concise and helpful.";
 
 export const systemPrompt = `${regularPrompt}\n\n${blocksPrompt}`;
 

@@ -50,3 +50,18 @@ export class InternalServerErrorException extends HttpException {
     Object.setPrototypeOf(this, InternalServerErrorException.prototype);
   }
 }
+
+export class NotSupportedException extends HttpException {
+  constructor(message: string = "Not Supported", data?: any) {
+    super(405, message, data);
+    Object.setPrototypeOf(this, NotSupportedException.prototype);
+  }
+}
+
+// lib/exceptions.ts
+export class RateLimitException extends Error {
+  constructor() {
+    super("Too many requests. Please try again later.");
+    this.name = "RateLimitException";
+  }
+}

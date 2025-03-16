@@ -9,6 +9,9 @@ import { SessionProvider } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import { HotkeysProvider } from "react-hotkeys-hook";
 import { Toaster } from "sonner";
+import RuntimeProvider from "./RuntimeProvider";
+import { ThemeProvider } from "@/context/Theme.context";
+import "react-simple-keyboard/build/css/index.css";
 
 export default function Providers({ session, children }: { session: Session | null; children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -27,13 +30,17 @@ export default function Providers({ session, children }: { session: Session | nu
       <ModelProvider>
         <TooltipProvider>
           <HotkeysProvider>
-            <SidebarProvider open={false}>
-              <AppSidebar />
-              <SidebarInset>
-                <Toaster position="top-center" />
-                {children}
-              </SidebarInset>
-            </SidebarProvider>
+            <ThemeProvider>
+              <RuntimeProvider>
+                <SidebarProvider open={false}>
+                  <AppSidebar />
+                  <SidebarInset>
+                    <Toaster position="top-center" richColors />
+                    {children}
+                  </SidebarInset>
+                </SidebarProvider>
+              </RuntimeProvider>
+            </ThemeProvider>
           </HotkeysProvider>
         </TooltipProvider>
       </ModelProvider>

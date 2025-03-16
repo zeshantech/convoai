@@ -2,7 +2,7 @@ import NextAuth, { getServerSession, NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import bcrypt from "bcryptjs";
-import dbConnect from "@/lib/db/mongoose";
+import dbConnect from "@/lib/mongoose";
 import { User } from "@/models/User";
 import Credentials from "next-auth/providers/credentials";
 
@@ -32,10 +32,7 @@ export const authOptions: NextAuthOptions = {
         const user = await User.findOne({ email: credentials?.email });
 
         if (!user || !user.password) return null;
-        const isValid = await bcrypt.compare(
-          credentials?.password ?? "",
-          user.password
-        );
+        const isValid = await bcrypt.compare(credentials?.password ?? "", user.password);
         if (!isValid) return null;
 
         return {

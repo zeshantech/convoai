@@ -1,4 +1,4 @@
-import dbConnect from "@/lib/db/mongoose";
+import dbConnect from "@/lib/mongoose";
 import { getSession } from "../auth/[...nextauth]/route";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";

@@ -5,11 +5,11 @@ import { signIn } from "next-auth/react";
 
 export default function SocialSignin() {
   const handleOnGoogleSignin = async () => {
-    await signIn("google", { callbackUrl: "/chat/n" });
+    await signIn("google", { callbackUrl: "/chat" });
   };
 
   const handleOnGithubSignin = async () => {
-    await signIn("github", { callbackUrl: "/chat/n" });
+    await signIn("github", { callbackUrl: "/chat" });
   };
 
   return (

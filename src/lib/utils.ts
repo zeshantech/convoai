@@ -1,17 +1,10 @@
+import { getModel } from "@/app/api/chat/helpers";
 import { IDocument } from "@/models/Document";
 import { IMessage } from "@/models/Message";
-import {
-  CoreUserMessage,
-  generateText,
-  type CoreAssistantMessage,
-  type CoreToolMessage,
-  type Message,
-  type ToolInvocation,
-} from "ai";
+import { generateText, type CoreAssistantMessage, type CoreToolMessage, type Message, type ToolInvocation } from "ai";
 import { type ClassValue, clsx } from "clsx";
 import { Types } from "mongoose";
 import { twMerge } from "tailwind-merge";
-import { getModel } from "./ai/ai";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -26,9 +19,7 @@ export const fetcher = async (url: string) => {
   const res = await fetch(url);
 
   if (!res.ok) {
-    const error = new Error(
-      "An error occurred while fetching the data."
-    ) as ApplicationError;
+    const error = new Error("An error occurred while fetching the data.") as ApplicationError;
 
     error.info = await res.json();
     error.status = res.status;
@@ -56,21 +47,13 @@ export function isValidObjectId(id: string): boolean {
   return Types.ObjectId.isValid(id);
 }
 
-function addToolMessageToChat({
-  toolMessage,
-  messages,
-}: {
-  toolMessage: CoreToolMessage;
-  messages: Array<Message>;
-}): Array<Message> {
+function addToolMessageToChat({ toolMessage, messages }: { toolMessage: CoreToolMessage; messages: Array<Message> }): Array<Message> {
   return messages.map((message) => {
     if (message.toolInvocations) {
       return {
         ...message,
         toolInvocations: message.toolInvocations.map((toolInvocation) => {
-          const toolResult = toolMessage.content.find(
-            (tool) => tool.toolCallId === toolInvocation.toolCallId
-          );
+          const toolResult = toolMessage.content.find((tool) => tool.toolCallId === toolInvocation.toolCallId);
 
           if (toolResult) {
             return {
@@ -129,9 +112,7 @@ export function convertToUIMessages(messages: Array<IMessage>): Array<Message> {
   }, []);
 }
 
-export function sanitizeResponseMessages(
-  messages: Array<CoreToolMessage | CoreAssistantMessage>
-): Array<CoreToolMessage | CoreAssistantMessage> {
+export function sanitizeResponseMessages(messages: Array<CoreToolMessage | CoreAssistantMessage>): Array<CoreToolMessage | CoreAssistantMessage> {
   const toolResultIds: Array<string> = [];
 
   for (const message of messages) {
@@ -149,13 +130,7 @@ export function sanitizeResponseMessages(
 
     if (typeof message.content === "string") return message;
 
-    const sanitizedContent = message.content.filter((content) =>
-      content.type === "tool-call"
-        ? toolResultIds.includes(content.toolCallId)
-        : content.type === "text"
-        ? content.text.length > 0
-        : true
-    );
+    const sanitizedContent = message.content.filter((content) => (content.type === "tool-call" ? toolResultIds.includes(content.toolCallId) : content.type === "text" ? content.text.length > 0 : true));
 
     return {
       ...message,
@@ -163,9 +138,7 @@ export function sanitizeResponseMessages(
     };
   });
 
-  return messagesBySanitizedContent.filter(
-    (message) => message.content.length > 0
-  );
+  return messagesBySanitizedContent.filter((message) => message.content.length > 0);
 }
 
 export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
@@ -182,11 +155,7 @@ export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
       }
     }
 
-    const sanitizedToolInvocations = message.toolInvocations.filter(
-      (toolInvocation) =>
-        toolInvocation.state === "result" ||
-        toolResultIds.includes(toolInvocation.toolCallId)
-    );
+    const sanitizedToolInvocations = message.toolInvocations.filter((toolInvocation) => toolInvocation.state === "result" || toolResultIds.includes(toolInvocation.toolCallId));
 
     return {
       ...message,
@@ -194,11 +163,7 @@ export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
     };
   });
 
-  return messagesBySanitizedToolInvocations.filter(
-    (message) =>
-      message.content.length > 0 ||
-      (message.toolInvocations && message.toolInvocations.length > 0)
-  );
+  return messagesBySanitizedToolInvocations.filter((message) => message.content.length > 0 || (message.toolInvocations && message.toolInvocations.length > 0));
 }
 
 export function getMostRecentUserMessage(messages: Array<Message>) {
@@ -206,10 +171,7 @@ export function getMostRecentUserMessage(messages: Array<Message>) {
   return userMessages.at(-1);
 }
 
-export function getDocumentTimestampByIndex(
-  documents: Array<IDocument>,
-  index: number
-) {
+export function getDocumentTimestampByIndex(documents: Array<IDocument>, index: number) {
   if (!documents) return new Date();
   if (index > documents.length) return new Date();
 

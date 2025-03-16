@@ -27,7 +27,7 @@ export default function RenameChatPopover({
 
   const handleCancel = () => {
     setPopoverOpen(false);
-    console.log("Canceling rename");
+    alert("Canceling rename");
   };
 
   return (

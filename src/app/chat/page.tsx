@@ -86,35 +86,16 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { AssistantRuntimeProvider, CompositeAttachmentAdapter, SimpleImageAttachmentAdapter, SimpleTextAttachmentAdapter, useEdgeRuntime, WebSpeechSynthesisAdapter } from "@assistant-ui/react";
 import { ChatMainComponent } from "@/components/chat/ChatMainComponent";
 
 export default function HomePage() {
   return (
     <main className="h-dvh">
-      <MyRuntimeProvider>
-        <ChatMainComponent />
-      </MyRuntimeProvider>
+      <ChatMainComponent />
     </main>
   );
 }
 
 export type AssistantProps = {
   chat: ReturnType<typeof useChat>;
-};
-
-const MyRuntimeProvider = ({ children }: { children: React.ReactNode }) => {
-  const runtime = useEdgeRuntime({
-    api: "/api/chat",
-    adapters: {
-      speech: new WebSpeechSynthesisAdapter(),
-      attachments: new CompositeAttachmentAdapter([new SimpleImageAttachmentAdapter(), new SimpleTextAttachmentAdapter()]),
-      feedback: {
-        submit: ({ message, type }) => {
-          console.log({ message, type }); // TODO: feedback like or unlike
-        },
-      },
-    },
-  });
-  return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
 };

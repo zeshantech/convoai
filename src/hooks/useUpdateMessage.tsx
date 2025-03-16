@@ -16,11 +16,8 @@ export function useUpdateMessage() {
         const response = await api.put(`${url}/${arg.id}`, arg);
 
         return response.data;
-      } catch (error: any) {
-        console.log(error);
-        toast.error(
-          error?.message ?? "Something went wrong, plz tryagain Later"
-        );
+      } catch (error: unknown) {
+        toast.error((error as IError).message);
       }
     }
   );
